@@ -20,7 +20,7 @@ from src.data_loader import (
     download_dataset,
 )
 
-from src.prediction import Predictor
+from src.predictor import Predictor
 
 
 # ==========================================================
