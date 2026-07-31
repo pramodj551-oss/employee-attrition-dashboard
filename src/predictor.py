@@ -60,11 +60,26 @@ class Predictor:
         return prediction
 
     def predict_probability(self, input_data: pd.DataFrame):
-        """
-        Predict probability of attrition.
-        """
-        if hasattr(self.model, "predict_proba"):
-            probability = self.model.predict_proba(input_data)
+    """
+    Predict probability of attrition.
+    """
+
+    if self.feature_columns is not None:
+        input_data = input_data.reindex(
+            columns=self.feature_columns,
+            fill_value=0,
+        )
+
+    if self.scaler is not None:
+        input_data = self.scaler.transform(input_data)
+
+    if hasattr(self.model, "predict_proba"):
+        probability = self.model.predict_proba(input_data)
+        logger.info("Prediction probability generated.")
+        return probability
+
+    logger.warning("Model does not support predict_proba().")
+    return None
             logger.info("Prediction probability generated.")
             return probability
         logger.warning("Model does not support predict_proba().")
