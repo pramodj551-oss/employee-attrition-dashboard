@@ -1,0 +1,84 @@
+# ==========================================================
+# Employee Attrition Dashboard
+# .gitignore
+#
+# Author: Pramod Prakash Jadhav
+# ==========================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled Python Files
+*.so
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Logs
+*.log
+logs/
+outputs/logs/
+
+# Model Files
+models/*.pkl
+models/*.joblib
+
+# Reports
+outputs/reports/*
+!outputs/reports/.gitkeep
+
+# Charts
+outputs/charts/*
+!outputs/charts/.gitkeep
+
+# Processed Data
+data/processed/*
+!data/processed/.gitkeep
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build Files
+build/
+dist/
+*.egg-info/
+
+# Coverage Reports
+.coverage
+htmlcov/
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Miscellaneous
+*.bak
+*.swp
