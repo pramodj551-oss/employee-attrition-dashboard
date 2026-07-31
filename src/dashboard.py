@@ -16,6 +16,9 @@ from src.data_loader import (
     get_column_types,
     filter_dataset,
     download_dataset,
+    load_dataset,  # NOTE: adjust this import to match your actual
+                   # data_loader.py function name if it differs
+                   # (e.g. read_data, load_data, get_dataframe, etc.)
 )
 from src.predictor import Predictor
 
@@ -199,8 +202,10 @@ def show_dataset(df):
         data=csv,
         file_name="filtered_employee_attrition.csv",
         mime="text/csv",
-  )
-  # ==========================================================
+    )
+
+
+# ==========================================================
 # EDA Page
 # ==========================================================
 
@@ -406,7 +411,9 @@ def show_prediction(df):
         except Exception as error:
 
             st.error(error)
-          # ==========================================================
+
+
+# ==========================================================
 # Feature Importance Page
 # ==========================================================
 
@@ -596,4 +603,67 @@ interactive business insights.
 
     st.success(
         "Thank you for exploring the Employee Attrition Dashboard!"
-  )
+    )
+
+
+# ==========================================================
+# App Entry Point
+# ==========================================================
+
+def main():
+    """
+    Configure the page, load data, render sidebar navigation,
+    and dispatch to the selected page.
+    """
+
+    st.set_page_config(
+        page_title="Employee Attrition Dashboard",
+        page_icon="📊",
+        layout="wide",
+    )
+
+    # NOTE: load_dataset() is assumed to live in src/data_loader.py
+    # and return a pandas DataFrame (e.g. reading a CSV from disk
+    # or a data/ folder). Rename/adjust this call to match whatever
+    # your actual loader function is called.
+    df = load_dataset()
+
+    st.sidebar.title("📊 Navigation")
+
+    page = st.sidebar.radio(
+        "Go to",
+        [
+            "Home",
+            "Dataset Explorer",
+            "EDA",
+            "Predict Attrition",
+            "Feature Importance",
+            "Reports",
+            "About",
+        ],
+    )
+
+    if page == "Home":
+        show_home(df)
+
+    elif page == "Dataset Explorer":
+        show_dataset(df)
+
+    elif page == "EDA":
+        show_eda(df)
+
+    elif page == "Predict Attrition":
+        show_prediction(df)
+
+    elif page == "Feature Importance":
+        show_feature_importance()
+
+    elif page == "Reports":
+        show_reports()
+
+    elif page == "About":
+        show_about()
+
+
+if __name__ == "__main__":
+    main()
