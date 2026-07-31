@@ -11,16 +11,16 @@ Author : Pramod Prakash Jadhav
 import streamlit as st
 
 from src.charts import DashboardCharts
+
 from src.data_loader import (
+    load_data,
     get_dataset_summary,
     get_column_types,
     filter_dataset,
     download_dataset,
-    load_dataset,  # NOTE: adjust this import to match your actual
-                   # data_loader.py function name if it differs
-                   # (e.g. read_data, load_data, get_dataframe, etc.)
 )
-from src.predictor import Predictor
+
+from src.prediction import Predictor
 
 
 # ==========================================================
