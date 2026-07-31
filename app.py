@@ -37,7 +37,13 @@ st.set_page_config(
 # Load Dataset
 # ---------------------------------------------------------
 
-df = load_data()
+@st.cache_data
+def load_dataset():
+
+    return load_data()
+
+
+df = load_dataset()
 
 # ---------------------------------------------------------
 # Sidebar
