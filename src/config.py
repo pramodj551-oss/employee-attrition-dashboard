@@ -37,7 +37,13 @@ DATASET_PATH = RAW_DATA_DIR / "employee_attrition.csv"
 # Model Directory
 # ==========================================================
 
-SCALER_PATH = MODELS_DIR / "scaler.pkl" FEATURE_COLUMNS_PATH = MODELS_DIR / "feature_columns.joblib" LABEL_ENCODER_PATH = MODELS_DIR / "label_encoder.pkl"
+MODELS_DIR = PROJECT_ROOT / "models"
+MODEL_PATH = MODELS_DIR / "best_model.pkl"
+
+# Artifact paths used by the predictor (adjust names/extensions if you used different ones)
+SCALER_PATH = MODELS_DIR / "scaler.pkl"
+FEATURE_COLUMNS_PATH = MODELS_DIR / "feature_columns.joblib"
+LABEL_ENCODER_PATH = MODELS_DIR / "label_encoder.pkl"
 
 # ==========================================================
 # Output Directories
