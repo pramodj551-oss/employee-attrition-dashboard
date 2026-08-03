@@ -17,42 +17,63 @@ import streamlit as st
 from src.config import DATASET_PATH
 from src.logger import logger
 
+# inside src/data_loader.py — replace existing load_data() with this
+
 @st.cache_data(show_spinner=False)
-def load_data() -> pd.DataFrame:
+def load_data() -> pd.DataFrame | None:
     """
-    Load the employee attrition dataset (prefer parquet for speed & memory).
-    Caches the loaded dataset for the session.
-    Returns None on error so we don't cache empty DataFrames unintentionally.
+    Load the employee attrition dataset.
+    Searches a few likely locations. Returns None if not found (UI can prompt upload).
     """
     try:
         logger.info("Loading dataset...")
 
-        if not Path(DATASET_PATH).exists():
-            raise FileNotFoundError(f"Dataset not found: {DATASET_PATH}")
+        candidates = [
+            Path(DATASET_PATH),
+            Path(DATASET_PATH).name and Path(DATASET_PATH).parent.parent / "data" / "raw" / Path(DATASET_PATH).name,
+            Path(DATASET_PATH).name and Path(DATASET_PATH).parent.parent / Path(DATASET_PATH).name,
+            Path("data") / "raw" / Path(DATASET_PATH).name,
+            Path("data") / Path(DATASET_PATH).name,
+            Path(Path.cwd()) / Path(DATASET_PATH).name,
+        ]
 
-        # Prefer fast columnar format if available
-        path = Path(DATASET_PATH)
-        if path.suffix in (".parquet", ".pq", ".feather"):
-            df = pd.read_parquet(path)
-        else:
-            # CSV fallback: tune parsing for performance
-            # Provide dtype mapping if known. Example: dtype = {"col1": "int32", ...}
-            df = pd.read_csv(path, low_memory=False)
+        # Keep unique and existing candidate paths
+        seen = set()
+        existing = []
+        for p in candidates:
+            if not p:
+                continue
+            p = p.resolve()
+            if str(p) in seen:
+                continue
+            seen.add(str(p))
+            if p.exists():
+                existing.append(p)
 
-        # Convert low-cardinality object columns to category to reduce memory
-        for col in df.select_dtypes(include="object").columns:
-            if df[col].nunique(dropna=False) / max(1, len(df)) < 0.5:
-                df[col] = df[col].astype("category")
+        if existing:
+            # prefer parquet/feather if present
+            p = existing[0]
+            if p.suffix in (".parquet", ".pq", ".feather"):
+                df = pd.read_parquet(p)
+            else:
+                df = pd.read_csv(p, low_memory=False)
 
-        logger.info("Dataset loaded successfully. Shape: %s", df.shape)
-        return df
+            # Convert low-cardinality object cols to category
+            for col in df.select_dtypes(include="object").columns:
+                if df[col].nunique(dropna=False) / max(1, len(df)) < 0.5:
+                    df[col] = df[col].astype("category")
+
+            logger.info("Dataset loaded successfully from %s. Shape: %s", p, df.shape)
+            return df
+
+        # Not found: log and return None so UI can handle upload
+        logger.warning("Dataset not found at any candidate paths. Looked at: %s", candidates)
+        return None
 
     except Exception as error:
         logger.exception("Failed to load dataset.")
         st.error(f"Error loading dataset: {error}")
-        # Return None (not cached as a DataFrame) so UI can handle retry/notify
         return None
-
 
 def get_dataset_summary(df: pd.DataFrame) -> dict:
     """
