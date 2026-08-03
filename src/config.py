@@ -78,28 +78,29 @@ SIDEBAR_STATE = "expanded"
 RANDOM_STATE = 42
 
 # ==========================================================
-# Create Required Directories
+# Create Required Directories (safe: non-fatal on failure)
 # ==========================================================
 
 DIRECTORIES = [
-
     PROCESSED_DATA_DIR,
-
     MODELS_DIR,
-
     OUTPUT_DIR,
-
     CHARTS_DIR,
-
     REPORTS_DIR,
-
     LOGS_DIR,
-
 ]
 
 for directory in DIRECTORIES:
-
-    directory.mkdir(parents=True, exist_ok=True)
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        # Environment may be read-only (e.g., certain hosting platforms).
+        # Avoid failing import; directory creation can be retried/handled in a setup step.
+        # If you have an app-level logger, log this event there.
+        pass
+    except Exception:
+        # Catch-all to prevent import-time failures. Handle explicitly in setup if needed.
+        pass
 
 # ==========================================================
 # Default Chart Size
