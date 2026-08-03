@@ -7,7 +7,10 @@ app.py
 Author : Pramod Prakash Jadhav
 ==========================================================
 """
+import io
+from typing import Optional
 
+import pandas as pd
 import streamlit as st
 
 from src.data_loader import load_data
@@ -25,7 +28,6 @@ from src.dashboard import (
 # ---------------------------------------------------------
 # Page Configuration
 # ---------------------------------------------------------
-
 st.set_page_config(
     page_title="Employee Attrition Dashboard",
     page_icon="📊",
@@ -33,36 +35,57 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ---------------------------------------------------------
-# Load Dataset
-# ---------------------------------------------------------
 
-# Replace current load_dataset / df = load_dataset() block in app.py with:
-
+# ---------------------------------------------------------
+# Helpers for loading dataset (disk or uploaded)
+# ---------------------------------------------------------
 @st.cache_data
-def load_dataset_from_file(file_bytes) -> pd.DataFrame:
-    # called when user uploads a CSV; cached by the bytes
-    import io
+def parse_uploaded_csv(file_bytes: bytes) -> pd.DataFrame:
+    """Parse uploaded CSV bytes into a DataFrame and cache by bytes content."""
     return pd.read_csv(io.BytesIO(file_bytes), low_memory=False)
 
-# Attempt to load from disk first
-df = load_dataset()
 
+def get_dataset() -> Optional[pd.DataFrame]:
+    """
+    Try to load dataset from disk using load_data().
+    If not found, prompt user to upload a CSV via Streamlit file_uploader.
+    Returns a DataFrame or None.
+    """
+    df = load_data()  # load_data may return None if file not found
+    if df is not None:
+        return df
+
+    st.warning(
+        "Dataset not found on disk. Please upload 'employee_attrition.csv' "
+        "or place it at data/raw/employee_attrition.csv."
+    )
+
+    uploaded = st.file_uploader("Upload employee_attrition.csv", type=["csv"])
+    if uploaded is not None:
+        try:
+            df = parse_uploaded_csv(uploaded.getvalue())
+            st.success("Dataset uploaded successfully.")
+            return df
+        except Exception as e:
+            st.error(f"Failed to parse uploaded CSV: {e}")
+            return None
+
+    # No dataset available
+    return None
+
+
+# ---------------------------------------------------------
+# Load Dataset (disk first, then uploader)
+# ---------------------------------------------------------
+df = get_dataset()
 if df is None:
-    st.warning("Dataset not found on disk. Please upload employee_attrition.csv to continue, or place it at data/raw/employee_attrition.csv.")
-    uploaded_file = st.file_uploader("Upload employee_attrition.csv", type=["csv"])
-    if uploaded_file is not None:
-        # read uploaded file bytes and cache
-        file_bytes = uploaded_file.getvalue()
-        df = load_dataset_from_file(file_bytes)
-    else:
-        # show a friendly message and stop further rendering
-        st.stop()
+    # If no dataset available, stop further rendering (user must upload or add file)
+    st.stop()
+
 
 # ---------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------
-
 st.sidebar.title("📊 Employee Attrition Dashboard")
 
 menu = st.sidebar.radio(
@@ -88,10 +111,10 @@ AI/ML Developer | Security Analyst
 """
 )
 
+
 # ---------------------------------------------------------
 # Navigation
 # ---------------------------------------------------------
-
 if menu == "Home":
     show_home(df)
 
