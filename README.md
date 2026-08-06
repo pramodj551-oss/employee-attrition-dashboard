@@ -9,7 +9,7 @@
 
 > **A Production-Ready Interactive Employee Attrition Dashboard built using Streamlit, Machine Learning, and Plotly.**
 
-🔗 **Live Demo:** *(add your Streamlit Cloud URL here)*
+🔗 **Live Demo:** *([add your Streamlit Cloud URL here](https://employee-attrition-dashboard-project.streamlit.app/))*
 
 ---
 
